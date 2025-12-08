@@ -1,0 +1,69 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+* {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  scroll-behavior: smooth;
+  font-family: "Inter", sans-serif;
+}
+
+/* Hover effect kotak lurus */
+.custom-sidebar-menu .ant-menu-item:hover {
+  background-color: #e9eaf2 !important;
+  color: #2e3192 !important;
+  border-radius: 0 !important;
+}
+
+/* Active / selected kotak lurus */
+.custom-sidebar-menu .ant-menu-item-selected {
+  background-color: #e9eaf2 !important;
+  color: #2e3192 !important;
+  border-radius: "10px";
+}
+
+/* Icon sama seperti teks */
+.custom-sidebar-menu .ant-menu-item:hover .anticon,
+.custom-sidebar-menu .ant-menu-item-selected .anticon {
+  color: #2e3192 !important;
+}
+
+/* hide scrollbar*/
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Style untuk export */
+@media print {
+  .ant-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .recharts-wrapper {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* Style untuk export */
+.export-optimized {
+  background-color: white !important;
+}
+
+.export-optimized .ant-card {
+  border: 1px solid #d9d9d9;
+  margin-bottom: 16px;
+}
+
+.export-optimized .recharts-surface {
+  background-color: white;
+}
