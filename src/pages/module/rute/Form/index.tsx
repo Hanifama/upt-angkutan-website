@@ -105,12 +105,6 @@ const RuteForm: React.FC = () => {
       } else if (isEditMode && currentDocument) {
         // Jika mode edit dan tidak ada file baru, gunakan dokumen yang sudah ada
         dokumenPerwal = currentDocument;
-      } else {
-        // Untuk create mode, wajib ada dokumen
-        if (!isEditMode) {
-          messageApi.error("Dokumen Peraturan Wali Kota wajib diunggah!", 2);
-          return;
-        }
       }
 
       if (isEditMode && routeId) {
@@ -190,7 +184,7 @@ const RuteForm: React.FC = () => {
   };
 
   // Tentukan apakah required berdasarkan mode
-  const isDocumentRequired = !isEditMode; // Hanya required untuk create
+  // const isDocumentRequired = !isEditMode;
 
   const pageTitle = isEditMode ? "Edit Data Rute" : "Tambah Data Rute";
   const cardTitle = isEditMode ? "Form Edit Rute" : "Form Tambah Rute";
@@ -302,12 +296,7 @@ const RuteForm: React.FC = () => {
           <Form.Item
             name="dokumen"
             label="Dokumen Peraturan Wali Kota"
-            rules={[
-              {
-                required: isDocumentRequired,
-                message: "Unggah dokumen wajib!",
-              },
-            ]}
+            rules={[]}
             extra={
               isEditMode ? "Kosongkan jika tidak ingin mengubah dokumen" : ""
             }

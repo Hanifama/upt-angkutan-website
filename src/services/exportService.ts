@@ -10,7 +10,7 @@ class ExportService {
   ) {
     try {
       const response = await api.get(endpoint, {
-        params,
+        ...(params ? { params } : {}),
         responseType: "text",
       });
 

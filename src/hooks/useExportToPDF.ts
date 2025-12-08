@@ -20,7 +20,8 @@ export const useExportToPDF = () => {
       loadingElement.style.padding = "20px";
       loadingElement.style.borderRadius = "8px";
       loadingElement.style.zIndex = "9999";
-      loadingElement.innerHTML = "Tunggu sebentar, sedang di proses...";
+      loadingElement.innerHTML =
+        "Mohon tunggu sebentar, Data sedang di proses...";
       document.body.appendChild(loadingElement);
 
       // Create PDF

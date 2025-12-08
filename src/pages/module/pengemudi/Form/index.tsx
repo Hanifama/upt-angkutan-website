@@ -149,7 +149,7 @@ const PengemudiForm: React.FC = () => {
         email: values.email,
         nomorTelepon: values.nomorTelepon,
         password: values.password || "Password_123&",
-        nomorPegawai: values.nomorPegawai,
+        nomorPegawai: values.nomorPegawai || "",
         alamat: values.alamat || "",
         pendidikanTerakhir: values.pendidikan || "",
         simData: simDataPayload,
@@ -258,11 +258,7 @@ const PengemudiForm: React.FC = () => {
             </Col>
           </Row>
 
-          <Form.Item
-            label="Nomor Pegawai"
-            name="nomorPegawai"
-            rules={[{ required: true, message: "Nomor pegawai wajib diisi!" }]}
-          >
+          <Form.Item label="Nomor Pegawai" name="nomorPegawai" rules={[]}>
             <Input placeholder="Masukkan nomor pegawai" />
           </Form.Item>
 
@@ -308,6 +304,9 @@ const PengemudiForm: React.FC = () => {
               <Form.Item
                 label="Nomor Sertifikat Pengemudi"
                 name="nomorSertifikat"
+                rules={[
+                  { required: true, message: "Nomor sertifikat wajib diisi!" },
+                ]}
               >
                 <Input placeholder="Masukkan nomor sertifikat" />
               </Form.Item>
@@ -316,6 +315,12 @@ const PengemudiForm: React.FC = () => {
               <Form.Item
                 label="Masa Berlaku Sertifikat Pengemudi"
                 name="masaBerlakuSertifikat"
+                rules={[
+                  {
+                    required: true,
+                    message: "Masa berlaku sertifikat wajib diisi!",
+                  },
+                ]}
               >
                 <DatePicker
                   style={{ width: "100%" }}

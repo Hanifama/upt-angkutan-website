@@ -101,6 +101,23 @@ class RouteService {
       throw error;
     }
   }
+
+  async importRoutes(file: File): Promise<any> {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await api.post("/route/import", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      return response.data;
+    } catch (error: any) {
+      throw new Error(
+        error?.response?.data?.message || "Gagal mengimpor data rute"
+      );
+    }
+  }
 }
 
 export const routeService = new RouteService();

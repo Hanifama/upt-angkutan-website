@@ -29,6 +29,7 @@ interface ArmadaStoreState {
     layananId?: string;
     status?: string;
   }) => Promise<void>;
+  importArmada: (file: File) => Promise<void>;
 
   fetchArmadas: (params?: GetArmadaParams) => Promise<void>;
   fetchArmadaSummary: () => Promise<void>;
@@ -144,6 +145,19 @@ export const useArmadaStore = create<ArmadaStoreState>((set, get) => ({
       params.layananId = filterLayanan;
 
     await armadaService.exportArmada(params);
+  },
+
+  importArmada: async (file: File) => {
+    set({ isLoading: true, error: null });
+    try {
+      await armadaService.importArmada(file);
+    } catch (error: any) {
+      set({
+        error: error.message || "Gagal mengimpor armada",
+      });
+    } finally {
+      set({ isLoading: false });
+    }
   },
 
   deleteArmada: async (id: string) => {

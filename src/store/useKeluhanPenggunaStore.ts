@@ -31,6 +31,7 @@ interface KeluhanPenggunaStoreState {
   createKeluhanPengguna: (
     payload: CreateKeluhanPenggunaRequest
   ) => Promise<void>;
+  exportKeluhanPengguna: () => Promise<void>;
 }
 
 export const useKeluhanPenggunaStore = create<KeluhanPenggunaStoreState>(
@@ -101,6 +102,10 @@ export const useKeluhanPenggunaStore = create<KeluhanPenggunaStoreState>(
       } finally {
         set({ isLoading: false });
       }
+    },
+
+    exportKeluhanPengguna: async () => {
+      await keluhanPenggunaService.exportKeluhanPengguna();
     },
   })
 );

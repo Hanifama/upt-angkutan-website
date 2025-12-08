@@ -4,6 +4,7 @@ import type {
   CreateKeluhanPenggunaResponse,
 } from "../interfaces/keluhanPengguna";
 import api from "../utils/api";
+import { exportService } from "./exportService";
 
 class KeluhanPenggunaService {
   /**
@@ -50,6 +51,22 @@ class KeluhanPenggunaService {
       throw new Error(
         error?.response?.data?.message || "Gagal menambahkan keluhan pengguna"
       );
+    }
+  }
+
+  /**
+   * export keluhan pengguna
+   */
+  async exportKeluhanPengguna() {
+    try {
+      await exportService.exportToExcel(
+        "/driver/export/raw",
+        undefined,
+        "data_keluhan_pengguna.xlsx"
+      );
+    } catch (error) {
+      console.error("Gagal export data rute:", error);
+      throw error;
     }
   }
 }

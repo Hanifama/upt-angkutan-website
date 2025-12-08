@@ -1,5 +1,9 @@
 import { Button, Layout, Input, message } from "antd";
-import { DownloadOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DownloadOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import React from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "../components/_shared/Sidebar";
@@ -11,11 +15,13 @@ interface DashboardLayoutProps {
   pageSubtitle?: string;
 
   showExport?: boolean;
+  showImport?: boolean;
   showAdd?: boolean;
   showDateFilter?: boolean;
 
   onAdd?: () => void;
   onExport?: () => void;
+  onImport?: () => void;
   onDateFilter?: (date: string) => void;
 
   children?: React.ReactNode;
@@ -25,34 +31,33 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   pageTitle = "Dashboard",
   pageSubtitle,
   showExport = false,
+  showImport = false,
   showAdd = false,
+  showDateFilter = false,
   onAdd,
   onExport,
+  onImport,
   onDateFilter,
-  showDateFilter = false,
   children,
 }) => {
   const [messageApi, contextHolder] = message.useMessage();
 
   const handleExportClick = () => {
-    if (onExport) {
-      onExport();
-    } else {
-      messageApi.info("Mohon maaf, fitur sedang dikembangkan.");
-    }
+    if (onExport) onExport();
+    else messageApi.info("Mohon maaf, fitur sedang dikembangkan.");
+  };
+
+  const handleImportClick = () => {
+    if (onImport) onImport();
+    else messageApi.info("Mohon maaf, fitur sedang dikembangkan.");
   };
 
   return (
     <Layout style={{ minHeight: "100vh", background: "#e5e7eb" }}>
-      {/* Wajib render contextHolder agar message muncul */}
       {contextHolder}
-
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Layout */}
       <Layout style={{ background: "#f3f4f6", padding: "16px 24px" }}>
-        {/* Navbar */}
         <Header
           style={{
             padding: "50px 25px",
@@ -65,7 +70,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
           }}
         >
-          {/* Page Title & Subtitle */}
           <div className="flex flex-col flex-1 pr-4">
             <span className="text-xl font-bold mb-2">{pageTitle}</span>
             {pageSubtitle && (
@@ -73,7 +77,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             )}
           </div>
 
-          {/* Action Buttons / Input Date */}
           <div className="flex gap-2">
             {showDateFilter && (
               <Input
@@ -84,7 +87,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                   color: "#2E3192",
                   borderRadius: 4,
                   padding: "0.375rem 0.75rem",
-                  transition: "all 0.2s",
                 }}
                 onChange={(e) => onDateFilter?.(e.target.value)}
               />
@@ -101,6 +103,20 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                 onClick={handleExportClick}
               >
                 Export Data
+              </Button>
+            )}
+
+            {showImport && (
+              <Button
+                icon={<UploadOutlined />}
+                style={{
+                  backgroundColor: "transparent",
+                  borderColor: "#2E3192",
+                  color: "#2E3192",
+                }}
+                onClick={handleImportClick}
+              >
+                Import Data
               </Button>
             )}
 
@@ -121,7 +137,6 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           </div>
         </Header>
 
-        {/* Main Content */}
         <Content style={{ marginTop: "10px" }}>
           {children ?? <Outlet />}
         </Content>

@@ -106,6 +106,22 @@ class ArmadaService {
       throw error;
     }
   }
+
+  /** Import Armada */
+  async importArmada(file: File): Promise<void> {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      await api.post("/armada/import", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    } catch (error: any) {
+      throw new Error(
+        error?.response?.data?.message || "Gagal mengimpor data armada"
+      );
+    }
+  }
 }
 
 export const armadaService = new ArmadaService();

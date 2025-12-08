@@ -33,6 +33,8 @@ interface DriverStoreState {
     status?: string;
   }) => Promise<void>;
 
+  importDriver: (file: File) => Promise<void>;
+
   fetchDrivers: (
     page?: number,
     limit?: number,
@@ -192,6 +194,26 @@ export const useDriverStore = create<DriverStoreState>((set, get) => ({
     if (filterLayanan !== "Semua Layanan") params.layananId = filterLayanan;
 
     await driverService.exportDriver(params);
+  },
+
+  importDriver: async (file: File) => {
+    set({ isLoading: true, error: null });
+
+    try {
+      const response = await driverService.importDriver(file);
+
+      // Kalau API mengembalikan data hasil import (misal: successCount)
+      console.log("Import success:", response);
+    } catch (error: any) {
+      set({
+        error:
+          error.message ||
+          "Gagal mengimpor data driver, periksa file dan coba lagi!",
+      });
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
   },
 
   resetSelectedDriver: () => set({ selectedDriver: null }),

@@ -37,6 +37,7 @@ interface RouteStoreState {
     layananId?: string;
     status?: string;
   }) => Promise<void>;
+  importRoutes: (file: File) => Promise<void>;
 
   // functions service
   fetchRoutes: (params?: GetRoutesParams) => Promise<void>;
@@ -224,6 +225,19 @@ export const useRouteStore = create<RouteStoreState>((set, get) => ({
     } catch (error) {
       set({ error: "Gagal menghapus data rute, silakan coba lagi!" });
       throw new Error("Gagal menghapus data rute, silakan coba lagi!");
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  importRoutes: async (file: File) => {
+    set({ isLoading: true, error: null });
+    try {
+      await routeService.importRoutes(file);
+    } catch (error: any) {
+      set({
+        error: error.message || "Gagal mengimpor rute",
+      });
     } finally {
       set({ isLoading: false });
     }
