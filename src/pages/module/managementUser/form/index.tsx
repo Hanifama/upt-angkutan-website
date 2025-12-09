@@ -364,9 +364,9 @@ const UserForm: React.FC = () => {
             message="Informasi Penting"
             description={
               <div>
-                <p>Password default akan di-generate otomatis: <strong>BemoBandung25$</strong></p>
+                <p>Password default akan di-generate otomatis: <strong>YTREWQ</strong></p>
                 <p className="text-sm text-gray-600 mt-1">
-                  Pengguna akan diminta mengganti password saat login pertama kali.
+                  pengguna bisa mengganti password di profile
                 </p>
               </div>
             }
