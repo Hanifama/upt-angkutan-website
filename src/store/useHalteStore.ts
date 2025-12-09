@@ -161,7 +161,7 @@ export const useHalteStore = create<HalteStoreState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await halteService.updateHalte(id, payload);
-      
+
       // Update local state
       set((state) => ({
         halte: state.halte.map((halte) =>
@@ -172,7 +172,7 @@ export const useHalteStore = create<HalteStoreState>((set, get) => ({
             ? { ...state.selectedHalte, ...response.data }
             : state.selectedHalte,
       }));
-      
+
       return response; // Return response untuk feedback
     } catch (error: any) {
       set({ error: error.message || "Gagal memperbarui halte" });
