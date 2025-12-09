@@ -180,12 +180,6 @@ const UserManagementPage: React.FC = () => {
             width: 200,
             render: (_, record) => (
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <Avatar
-                        size="large"
-                        src={record.avatar}
-                        icon={!record.avatar && <UserOutlined />}
-                        style={{ backgroundColor: record.isActive ? "#1890ff" : "#ccc" }}
-                    />
                     <div>
                         <div style={{ fontWeight: 500 }}>{record.namaLengkap}</div>
                         <div style={{ fontSize: 12, color: "#666", marginTop: 4 }}>

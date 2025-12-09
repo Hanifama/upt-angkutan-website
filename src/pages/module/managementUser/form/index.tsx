@@ -62,17 +62,12 @@ const UserForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
-  const [passwordLoading, setPasswordLoading] = useState(false);
 
   // Avatar state
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
-
-  // Password visibility
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Stores
   const {
@@ -246,42 +241,57 @@ const UserForm: React.FC = () => {
         payload.avatar = previewImage;
       }
 
-      // --- TAMBAHAN BARU: Password hanya untuk edit mode ---
-      if (isEditMode && values.newPassword && values.newPassword.trim() !== '') {
-        // Kirim password baru jika diisi
-        payload.password = values.newPassword;
+      // --- TAMBAHAN: Password untuk create dan edit mode ---
+      if (values.password && values.password.trim() !== '') {
+        // Kirim password jika diisi
+        payload.password = values.password;
       }
 
       if (isEditMode && userId) {
         // Update existing user menggunakan endpoint /user/:userId
-        payload.isActive = values.isActive;
         await updateUser(userId, payload);
         messageApi.success("Pengguna berhasil diperbarui!");
         
         // Jika password diubah, beri pesan khusus
-        if (values.newPassword && values.newPassword.trim() !== '') {
+        if (values.password && values.password.trim() !== '') {
           messageApi.info("Password berhasil diubah!", 3);
         }
       } else {
         // Create new user menggunakan endpoint /auth/add-user
-        // Password akan auto-generated: BemoBandung25$
         await createUser(payload);
 
-        // Tampilkan informasi password default
-        messageApi.success({
-          content: (
-            <div>
-              <p>Pengguna berhasil ditambahkan!</p>
-              <p>
-                <strong>Password default:</strong> YTREWQ
-              </p>
-              <p style={{ fontSize: '12px', color: '#666' }}>
-                (pengguna bisa mengganti password di profile)
-              </p>
-            </div>
-          ),
-          duration: 5,
-        });
+        // Tampilkan informasi password
+        if (values.password && values.password.trim() !== '') {
+          messageApi.success({
+            content: (
+              <div>
+                <p>Pengguna berhasil ditambahkan!</p>
+                <p>
+                  <strong>Password yang diatur:</strong> {values.password}
+                </p>
+                <p style={{ fontSize: '12px', color: '#666' }}>
+                  (pengguna bisa mengganti password di profile)
+                </p>
+              </div>
+            ),
+            duration: 5,
+          });
+        } else {
+          messageApi.success({
+            content: (
+              <div>
+                <p>Pengguna berhasil ditambahkan!</p>
+                <p>
+                  <strong>Password default:</strong> YTREWQ
+                </p>
+                <p style={{ fontSize: '12px', color: '#666' }}>
+                  (pengguna bisa mengganti password di profile)
+                </p>
+              </div>
+            ),
+            duration: 5,
+          });
+        }
       }
 
       // Tunggu sebentar sebelum redirect
@@ -330,13 +340,21 @@ const UserForm: React.FC = () => {
     return Promise.resolve();
   };
 
-  // Validasi password
+  // Validasi password (untuk create mode - wajib, untuk edit mode - opsional)
   const validatePassword = (_: any, value: string) => {
-    if (!value || value === '') {
-      return Promise.resolve(); // Password opsional untuk edit
-    }
-    if (value.length < 6) {
-      return Promise.reject(new Error('Password minimal 6 karakter'));
+    if (isEditMode) {
+      // Untuk edit mode: opsional
+      if (!value || value === '' || value.length >= 6) {
+        return Promise.resolve();
+      }
+    } else {
+      // Untuk create mode: wajib
+      if (!value || value === '') {
+        return Promise.reject(new Error('Password wajib diisi untuk pengguna baru'));
+      }
+      if (value.length < 6) {
+        return Promise.reject(new Error('Password minimal 6 karakter'));
+      }
     }
     return Promise.resolve();
   };
@@ -344,12 +362,21 @@ const UserForm: React.FC = () => {
   // Validasi konfirmasi password
   const validateConfirmPassword = ({ getFieldValue }: any) => ({
     validator(_: any, value: string) {
-      const newPassword = getFieldValue('newPassword');
-      if (!newPassword || newPassword === '') {
-        // Jika password baru kosong, tidak perlu validasi
-        return Promise.resolve();
+      const password = getFieldValue('password');
+      
+      if (isEditMode) {
+        // Untuk edit mode: validasi hanya jika password diisi
+        if (!password || password === '') {
+          return Promise.resolve();
+        }
+      } else {
+        // Untuk create mode: password wajib, jadi konfirmasi juga wajib
+        if (!password) {
+          return Promise.resolve();
+        }
       }
-      if (!value || value === newPassword) {
+      
+      if (!value || value === password) {
         return Promise.resolve();
       }
       return Promise.reject(new Error('Password tidak cocok'));
@@ -385,14 +412,6 @@ const UserForm: React.FC = () => {
         title={
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Button
-                icon={<ArrowLeftOutlined />}
-                onClick={() => navigate("/dashboard/management-user")}
-                type="text"
-                disabled={isLoading}
-              >
-                Kembali
-              </Button>
               <span style={{ fontWeight: 600, fontSize: '16px' }}>
                 {isEditMode ? 'Edit Pengguna' : 'Tambah Pengguna Baru'}
               </span>
@@ -407,30 +426,11 @@ const UserForm: React.FC = () => {
         className="shadow-md rounded-lg"
         loading={isEditMode && isUserStoreLoading}
       >
-        {!isEditMode && (
-          <Alert
-            message="Informasi Penting"
-            description={
-              <div>
-                <p>Password default akan di-generate otomatis: <strong>YTREWQ</strong></p>
-                <p className="text-sm text-gray-600 mt-1">
-                  pengguna bisa mengganti password di profile
-                </p>
-              </div>
-            }
-            type="info"
-            showIcon
-            icon={<InfoCircleOutlined />}
-            className="mb-6"
-          />
-        )}
-
         <Form
           form={form}
           layout="vertical"
           onFinish={handleSubmit}
           autoComplete="off"
-          initialValues={{ isActive: true }}
         >
           {/* Section: Informasi Pribadi */}
           <div className="mb-8">
@@ -440,7 +440,7 @@ const UserForm: React.FC = () => {
             </h3>
 
             {/* Avatar Upload Section */}
-            {isEditMode && (
+            {/* {isEditMode && (
               <div className="flex flex-col items-center mb-6">
                 <div className="mb-4">
                   <Avatar
@@ -510,7 +510,7 @@ const UserForm: React.FC = () => {
                   )}
                 </Text>
               </div>
-            )}
+            )} */}
 
             <Row gutter={[24, 16]}>
               <Col xs={24} md={12}>
@@ -631,67 +631,74 @@ const UserForm: React.FC = () => {
             </Form.Item>
           </div>
 
-          {/* Section: Ganti Password (Edit Mode Only) */}
-          {isEditMode && (
-            <>
-              <Divider />
-              <div className="mb-8">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <LockOutlined />
-                  Ganti Password (Opsional)
-                </h3>
-                
-                <Alert
-                  message="Informasi"
-                  description="Kosongkan jika tidak ingin mengubah password. Password minimal 6 karakter."
-                  type="info"
-                  showIcon
-                  icon={<InfoCircleOutlined />}
-                  className="mb-4"
-                />
-                
-                <Row gutter={[24, 16]}>
-                  <Col xs={24} md={12}>
-                    <Form.Item
-                      label="Password Baru"
-                      name="newPassword"
-                      rules={[
-                        { validator: validatePassword }
-                      ]}
-                    >
-                      <Input.Password
-                        placeholder="Masukkan password baru (opsional)"
-                        size="large"
-                        iconRender={(visible) => 
-                          visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
-                        }
-                        disabled={isLoading}
-                      />
-                    </Form.Item>
-                  </Col>
-                  
-                  <Col xs={24} md={12}>
-                    <Form.Item
-                      label="Konfirmasi Password"
-                      name="confirmPassword"
-                      rules={[
-                        validateConfirmPassword
-                      ]}
-                    >
-                      <Input.Password
-                        placeholder="Konfirmasi password baru"
-                        size="large"
-                        iconRender={(visible) => 
-                          visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
-                        }
-                        disabled={isLoading}
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-              </div>
-            </>
-          )}
+          {/* Section: Password (Untuk Create dan Edit Mode) */}
+          <Divider />
+          <div className="mb-8">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <LockOutlined />
+              Password {isEditMode ? '(Opsional)' : ''}
+            </h3>
+            
+            {isEditMode ? (
+              <Alert
+                message="Informasi"
+                description="Kosongkan jika tidak ingin mengubah password.Password harus terdiri dari 6 karakter (huruf kecil, besar, angka, simbol[@$!%*?&])"
+                type="info"
+                showIcon
+                icon={<InfoCircleOutlined />}
+                className="mb-4"
+              />
+            ) : (
+              <Alert
+                message="Informasi"
+                description="Password wajib diisi untuk pengguna baru. Minimal 6 karakter.Password harus terdiri dari 6 karakter (huruf kecil, besar, angka, simbol[@$!%*?&])"
+                type="info"
+                showIcon
+                icon={<InfoCircleOutlined />}
+                className="mb-4"
+              />
+            )}
+            
+            <Row gutter={[24, 16]}>
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Password"
+                  name="password"
+                  rules={[
+                    { validator: validatePassword }
+                  ]}
+                >
+                  <Input.Password
+                    placeholder={isEditMode ? "Masukkan password baru (opsional)" : "Masukkan password"}
+                    size="large"
+                    iconRender={(visible) => 
+                      visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
+                    }
+                    disabled={isLoading}
+                  />
+                </Form.Item>
+              </Col>
+              
+              <Col xs={24} md={12}>
+                <Form.Item
+                  label="Konfirmasi Password"
+                  name="confirmPassword"
+                  rules={[
+                    validateConfirmPassword
+                  ]}
+                >
+                  <Input.Password
+                    placeholder="Konfirmasi password"
+                    size="large"
+                    iconRender={(visible) => 
+                      visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
+                    }
+                    disabled={isLoading}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+          </div>
 
           <Divider />
 
