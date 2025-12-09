@@ -163,12 +163,8 @@ const dummyMeta = {
 
 // Role options dengan warna
 const roleOptions = [
-  { value: "super-admin", label: "Super Admin", color: "red" },
   { value: "admin-upt", label: "Admin UPT", color: "blue" },
   { value: "koperasi", label: "Koperasi", color: "green" },
-  { value: "operator", label: "Operator", color: "orange" },
-  { value: "driver", label: "Driver", color: "purple" },
-  { value: "passenger", label: "Passenger", color: "cyan" },
 ];
 
 const UserManagementPage: React.FC = () => {
@@ -411,16 +407,15 @@ const UserManagementPage: React.FC = () => {
     <div className="space-y-6">
       {contextHolder}
 
-      {/* Filter Section */}
+      {/* Data Table */}
       <Card
         title={
           <div className="flex items-center gap-2">
-            <FilterOutlined />
-            <span>Filter Data</span>
+            <span>Daftar User</span>
           </div>
         }
       >
-        <Row gutter={[16, 16]}>
+        <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
           <Col xs={24} md={8}>
             <Input
               placeholder="Cari nama, email, atau telepon..."
@@ -458,7 +453,7 @@ const UserManagementPage: React.FC = () => {
             </Select>
           </Col>
           <Col xs={24} md={4}>
-            <Button
+            {/* <Button
               block
               onClick={() => {
                 setSearchText("");
@@ -468,7 +463,7 @@ const UserManagementPage: React.FC = () => {
               }}
             >
               Reset Filter
-            </Button>
+            </Button> */}
           </Col>
         </Row>
 
@@ -502,10 +497,7 @@ const UserManagementPage: React.FC = () => {
             )}
           </div>
         )}
-      </Card>
 
-      {/* Data Table */}
-      <Card>
         <Table
           dataSource={paginatedUsers}
           columns={columns}

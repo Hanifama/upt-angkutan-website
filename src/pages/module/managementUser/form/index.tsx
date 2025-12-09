@@ -93,7 +93,6 @@ const CreateUserForm: React.FC = () => {
       <Card
         title={
           <div className="flex items-center gap-2">
-            <UserOutlined />
             <span>Form Tambah Pengguna</span>
           </div>
         }
@@ -290,7 +289,7 @@ const CreateUserForm: React.FC = () => {
             >
               <Button
                 size="large"
-                onClick={() => navigate("/dashboard/users")}
+                onClick={() => navigate("/dashboard/management-user")}
                 style={{ minWidth: 120 }}
               >
                 Batal
