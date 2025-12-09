@@ -46,7 +46,6 @@ const HalteForm: React.FC = () => {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
   const { uploadFile, uploadedFile, isLoading: isUploading, resetUpload } =
     useUploadStore();
 
@@ -163,7 +162,6 @@ const HalteForm: React.FC = () => {
     }
     setPreviewImage(file.url || (file.preview as string));
     setPreviewOpen(true);
-    setPreviewTitle(file.name || "");
   };
 
   const handleChange: UploadProps["onChange"] = ({ fileList: newList }) => {
