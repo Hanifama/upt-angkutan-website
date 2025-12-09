@@ -522,7 +522,7 @@ const UserForm: React.FC = () => {
                   name="nomorTelepon"
                   rules={[
                     { required: true, message: "Nomor telepon wajib diisi" },
-                    // { validator: validatePhoneNumber }
+                    { validator: validatePhoneNumber }
                   ]}
                 >
                   <Input
