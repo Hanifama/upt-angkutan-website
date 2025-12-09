@@ -31,12 +31,6 @@ const Sidebar: React.FC = () => {
       roles: ["admin-upt", "koperasi"], // bisa diakses oleh kedua role
     },
     {
-      key: "/dashboard/management-user",
-      icon: <UserOutlined style={{ fontSize: "20px" }} />,
-      label: "Management User",
-      roles: ["admin-upt"], // hanya admin UPT
-    },
-    {
       key: "/dashboard/survey-lapangan",
       icon: <BarChartOutlined style={{ fontSize: "20px" }} />,
       label: "Survey Lapangan",
@@ -76,6 +70,12 @@ const Sidebar: React.FC = () => {
       key: "/dashboard/keluhan",
       icon: <MessageOutlined style={{ fontSize: "20px" }} />,
       label: "Keluhan Pengguna",
+      roles: ["admin-upt"], // hanya admin UPT
+    },
+    {
+      key: "/dashboard/management-user",
+      icon: <UserOutlined style={{ fontSize: "20px" }} />,
+      label: "Management User",
       roles: ["admin-upt"], // hanya admin UPT
     },
     {
