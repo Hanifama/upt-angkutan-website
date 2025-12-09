@@ -42,11 +42,15 @@ const HalteWrapper = () => {
     }
 
     // Validasi format file
-    const allowedExtensions = ['.xlsx', '.xls', '.csv'];
-    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+    const allowedExtensions = [".xlsx", ".xls", ".csv"];
+    const fileExtension = file.name
+      .toLowerCase()
+      .substring(file.name.lastIndexOf("."));
 
     if (!allowedExtensions.includes(fileExtension)) {
-      messageApi.error(`Format file tidak didukung. Gunakan ${allowedExtensions.join(', ')}`);
+      messageApi.error(
+        `Format file tidak didukung. Gunakan ${allowedExtensions.join(", ")}`
+      );
       return;
     }
 
@@ -56,9 +60,7 @@ const HalteWrapper = () => {
       const result = await importHalte(file);
 
       if (result?.status) {
-        messageApi.success(
-          result.message || "Import data halte berhasil!"
-        );
+        messageApi.success(result.message || "Import data halte berhasil!");
 
         // Tampilkan detail jika ada
         if (result.data) {
@@ -70,7 +72,7 @@ const HalteWrapper = () => {
           }
         }
       } else {
-        messageApi.error(result?.message || "Import data halte berhasil!");
+        messageApi.error("Import data halte berhasil!");
       }
 
       setOpenImportModal(false);
@@ -117,19 +119,26 @@ const HalteWrapper = () => {
         width={500}
       >
         <div style={{ marginBottom: 16 }}>
-          <p>Format file yang didukung: .xlsx, .xls, .csv</p>
-          <p>Pastikan file memiliki format kolom yang sesuai dengan template.</p>
+          <p>
+            Pastikan file memiliki format kolom yang sesuai dengan template.
+          </p>
         </div>
 
         <Upload
           key={uploadKey}
           beforeUpload={(f) => {
             // Validasi format file sebelum diset
-            const allowedExtensions = ['.xlsx', '.xls', '.csv'];
-            const fileExtension = f.name.toLowerCase().substring(f.name.lastIndexOf('.'));
+            const allowedExtensions = [".xlsx", ".xls", ".csv"];
+            const fileExtension = f.name
+              .toLowerCase()
+              .substring(f.name.lastIndexOf("."));
 
             if (!allowedExtensions.includes(fileExtension)) {
-              messageApi.error(`Format file tidak didukung. Gunakan ${allowedExtensions.join(', ')}`);
+              messageApi.error(
+                `Format file tidak didukung. Gunakan ${allowedExtensions.join(
+                  ", "
+                )}`
+              );
               return Upload.LIST_IGNORE; // Mengabaikan file yang tidak valid
             }
 
@@ -140,7 +149,9 @@ const HalteWrapper = () => {
           accept=".xlsx,.xls,.csv"
           showUploadList={false}
         >
-          <Button icon={<UploadOutlined />}>Pilih File (.xlsx, .xls, .csv)</Button>
+          <Button icon={<UploadOutlined />}>
+            Pilih File (.xlsx, .xls, .csv)
+          </Button>
         </Upload>
 
         {file && (

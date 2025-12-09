@@ -3,11 +3,9 @@ import { exportService } from "./exportService";
 import type {
   CreateHaltePayload,
   CreateHalteResponse,
-  DeleteHalteResponse,
   GetHalteByIdResponse,
   GetHalteListParams,
   GetHalteResponse,
-  HalteFormData,
   ImportHalteResponse,
   ToggleStatusResponse,
   UpdateHalteResponse,

@@ -82,6 +82,11 @@ const PengemudiWrapper = () => {
         okText="Import"
         cancelText="Batal"
       >
+        <div style={{ marginBottom: 16 }}>
+          <p>
+            Pastikan file memiliki format kolom yang sesuai dengan template.
+          </p>
+        </div>
         <Upload
           key={uploadKey}
           beforeUpload={(file) => {

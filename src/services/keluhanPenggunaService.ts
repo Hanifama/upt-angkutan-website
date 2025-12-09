@@ -60,7 +60,7 @@ class KeluhanPenggunaService {
   async exportKeluhanPengguna() {
     try {
       await exportService.exportToExcel(
-        "/driver/export/raw",
+        "/keluhan-pengguna/export",
         undefined,
         "data_keluhan_pengguna.xlsx"
       );

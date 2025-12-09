@@ -21,7 +21,7 @@ const KeluhanPenggunaWrapper = () => {
 
   return (
     <DashboardLayout
-      pageTitle="Keluhan Pengguna (Note belum ada API exportnya)"
+      pageTitle="Keluhan Pengguna"
       showExport={true}
       onExport={handleExport}
       pageSubtitle="Manajemen keluhan pengguna"
