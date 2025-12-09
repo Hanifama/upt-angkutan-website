@@ -31,7 +31,8 @@ import {
   PhoneOutlined,
   CalendarOutlined,
   HomeOutlined,
-  EyeOutlined
+  EyeOutlined,
+  EyeInvisibleOutlined
 } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import type { RcFile, UploadFile } from "antd/es/upload/interface";
@@ -61,12 +62,17 @@ const UserForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   // Avatar state
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewTitle, setPreviewTitle] = useState("");
+
+  // Password visibility
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Stores
   const {
@@ -117,7 +123,6 @@ const UserForm: React.FC = () => {
         tanggalLahir: selectedUser.tanggalLahir ? dayjs(selectedUser.tanggalLahir) : null,
         role: selectedUser.role,
         alamat: selectedUser.alamat,
-        isActive: selectedUser.isActive,
       });
 
       // Set avatar jika ada
@@ -241,13 +246,22 @@ const UserForm: React.FC = () => {
         payload.avatar = previewImage;
       }
 
-      // Catatan: Password default "BemoBandung25$" akan di-generate otomatis oleh backend
+      // --- TAMBAHAN BARU: Password hanya untuk edit mode ---
+      if (isEditMode && values.newPassword && values.newPassword.trim() !== '') {
+        // Kirim password baru jika diisi
+        payload.password = values.newPassword;
+      }
 
       if (isEditMode && userId) {
         // Update existing user menggunakan endpoint /user/:userId
         payload.isActive = values.isActive;
         await updateUser(userId, payload);
         messageApi.success("Pengguna berhasil diperbarui!");
+        
+        // Jika password diubah, beri pesan khusus
+        if (values.newPassword && values.newPassword.trim() !== '') {
+          messageApi.info("Password berhasil diubah!", 3);
+        }
       } else {
         // Create new user menggunakan endpoint /auth/add-user
         // Password akan auto-generated: BemoBandung25$
@@ -259,7 +273,7 @@ const UserForm: React.FC = () => {
             <div>
               <p>Pengguna berhasil ditambahkan!</p>
               <p>
-                <strong>Password default:</strong> BemoBandung25$
+                <strong>Password default:</strong> YTREWQ
               </p>
               <p style={{ fontSize: '12px', color: '#666' }}>
                 (pengguna bisa mengganti password di profile)
@@ -316,6 +330,32 @@ const UserForm: React.FC = () => {
     return Promise.resolve();
   };
 
+  // Validasi password
+  const validatePassword = (_: any, value: string) => {
+    if (!value || value === '') {
+      return Promise.resolve(); // Password opsional untuk edit
+    }
+    if (value.length < 6) {
+      return Promise.reject(new Error('Password minimal 6 karakter'));
+    }
+    return Promise.resolve();
+  };
+
+  // Validasi konfirmasi password
+  const validateConfirmPassword = ({ getFieldValue }: any) => ({
+    validator(_: any, value: string) {
+      const newPassword = getFieldValue('newPassword');
+      if (!newPassword || newPassword === '') {
+        // Jika password baru kosong, tidak perlu validasi
+        return Promise.resolve();
+      }
+      if (!value || value === newPassword) {
+        return Promise.resolve();
+      }
+      return Promise.reject(new Error('Password tidak cocok'));
+    },
+  });
+
   // Loading state untuk edit mode
   if (isEditMode && isUserStoreLoading) {
     return (
@@ -345,6 +385,14 @@ const UserForm: React.FC = () => {
         title={
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
+              <Button
+                icon={<ArrowLeftOutlined />}
+                onClick={() => navigate("/dashboard/management-user")}
+                type="text"
+                disabled={isLoading}
+              >
+                Kembali
+              </Button>
               <span style={{ fontWeight: 600, fontSize: '16px' }}>
                 {isEditMode ? 'Edit Pengguna' : 'Tambah Pengguna Baru'}
               </span>
@@ -364,7 +412,7 @@ const UserForm: React.FC = () => {
             message="Informasi Penting"
             description={
               <div>
-                <p>Password default akan di-generate otomatis: <strong>BemoBandung25$</strong></p>
+                <p>Password default akan di-generate otomatis: <strong>YTREWQ</strong></p>
                 <p className="text-sm text-gray-600 mt-1">
                   pengguna bisa mengganti password di profile
                 </p>
@@ -392,7 +440,7 @@ const UserForm: React.FC = () => {
             </h3>
 
             {/* Avatar Upload Section */}
-            {/* {isEditMode && (
+            {isEditMode && (
               <div className="flex flex-col items-center mb-6">
                 <div className="mb-4">
                   <Avatar
@@ -462,7 +510,7 @@ const UserForm: React.FC = () => {
                   )}
                 </Text>
               </div>
-            )} */}
+            )}
 
             <Row gutter={[24, 16]}>
               <Col xs={24} md={12}>
@@ -543,7 +591,7 @@ const UserForm: React.FC = () => {
                   }
                   name="tanggalLahir"
                   rules={[
-                    { required: true, message: "Nomor telepon wajib diisi" }
+                    { required: true, message: "Tanggal lahir wajib diisi" }
                   ]}
                 >
                   <DatePicker
@@ -582,6 +630,68 @@ const UserForm: React.FC = () => {
               />
             </Form.Item>
           </div>
+
+          {/* Section: Ganti Password (Edit Mode Only) */}
+          {isEditMode && (
+            <>
+              <Divider />
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <LockOutlined />
+                  Ganti Password (Opsional)
+                </h3>
+                
+                <Alert
+                  message="Informasi"
+                  description="Kosongkan jika tidak ingin mengubah password. Password minimal 6 karakter."
+                  type="info"
+                  showIcon
+                  icon={<InfoCircleOutlined />}
+                  className="mb-4"
+                />
+                
+                <Row gutter={[24, 16]}>
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label="Password Baru"
+                      name="newPassword"
+                      rules={[
+                        { validator: validatePassword }
+                      ]}
+                    >
+                      <Input.Password
+                        placeholder="Masukkan password baru (opsional)"
+                        size="large"
+                        iconRender={(visible) => 
+                          visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
+                        }
+                        disabled={isLoading}
+                      />
+                    </Form.Item>
+                  </Col>
+                  
+                  <Col xs={24} md={12}>
+                    <Form.Item
+                      label="Konfirmasi Password"
+                      name="confirmPassword"
+                      rules={[
+                        validateConfirmPassword
+                      ]}
+                    >
+                      <Input.Password
+                        placeholder="Konfirmasi password baru"
+                        size="large"
+                        iconRender={(visible) => 
+                          visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
+                        }
+                        disabled={isLoading}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+              </div>
+            </>
+          )}
 
           <Divider />
 
@@ -629,7 +739,7 @@ const UserForm: React.FC = () => {
                   </Select>
                 </Form.Item>
               </Col>
-
+              
             </Row>
           </div>
 
