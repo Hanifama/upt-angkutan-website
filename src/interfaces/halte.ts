@@ -23,6 +23,7 @@ export interface Halte {
   layanan: HalteLayanan[];
   createdAt: string;
   updatedAt: string;
+  deskripsi?: string;
 }
 
 export interface HalteMeta {
@@ -90,11 +91,13 @@ export interface GetHalteByIdResponse {
 }
 
 export interface ImportHalteResponse {
-  success: boolean;
+  code: number; 
+  status?: boolean; 
+  success?: boolean; 
   message: string;
   data?: {
-    imported: number;
-    failed: number;
+    imported?: number; 
+    failed?: number; 
     details?: Array<{
       row: number;
       nama_halte: string;

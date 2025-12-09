@@ -5,6 +5,8 @@ import type {
   GetHalteListParams,
   CreateHaltePayload,
   CreateHalteResponse,
+  ImportHalteResponse,
+  UpdateHalteResponse,
 } from "../interfaces/halte";
 import { halteService } from "../services/halteService";
 
@@ -28,6 +30,7 @@ interface HalteStoreState {
   // Methods
   fetchHalte: (routeIds: string | string[]) => Promise<void>;
   fetchHalteList: (params: GetHalteListParams) => Promise<void>;
+  importHalte: (file: File) => Promise<ImportHalteResponse | void>;
   createHalte: (payload: CreateHaltePayload) => Promise<Halte | undefined>;
   getHalteById: (id: string) => Promise<void>;
   updateHalte: (

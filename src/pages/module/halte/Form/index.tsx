@@ -26,7 +26,7 @@ const { Option } = Select;
 const { TextArea } = Input;
 
 const HalteForm: React.FC = () => {
-  const { halteId } = useParams<{ halteId: string }>(); // Ubah dari id ke halteId
+  const { halteId } = useParams<{ halteId?: string }>();
   const {
     createHalte,
     updateHalte,
@@ -71,7 +71,9 @@ const HalteForm: React.FC = () => {
   const fetchHalteData = async () => {
     try {
       setIsLoadingHalte(true);
-      await getHalteById(halteId);
+      if (halteId){
+        await getHalteById(halteId);
+      }
     } catch (error: any) {
       messageApi.error(error.message || "Gagal memuat data halte");
       navigate("/dashboard/halte"); // Redirect jika error

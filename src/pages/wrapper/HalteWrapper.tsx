@@ -64,7 +64,8 @@ const HalteWrapper = () => {
 
         // Tampilkan detail jika ada
         if (result.data) {
-          const { imported, failed } = result.data;
+          const { imported = 0, failed = 0 } = result.data; // Default value langsung di destructuring
+          
           if (imported > 0 || failed > 0) {
             messageApi.info(
               `Import selesai: ${imported} data berhasil, ${failed} data gagal`
