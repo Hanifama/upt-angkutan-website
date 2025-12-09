@@ -259,7 +259,7 @@ const UserForm: React.FC = () => {
             <div>
               <p>Pengguna berhasil ditambahkan!</p>
               <p>
-                <strong>Password default:</strong> YTREWQ
+                <strong>Password default:</strong> BemoBandung25$
               </p>
               <p style={{ fontSize: '12px', color: '#666' }}>
                 (pengguna bisa mengganti password di profile)
@@ -364,7 +364,7 @@ const UserForm: React.FC = () => {
             message="Informasi Penting"
             description={
               <div>
-                <p>Password default akan di-generate otomatis: <strong>YTREWQ</strong></p>
+                <p>Password default akan di-generate otomatis: <strong>BemoBandung25$</strong></p>
                 <p className="text-sm text-gray-600 mt-1">
                   pengguna bisa mengganti password di profile
                 </p>
