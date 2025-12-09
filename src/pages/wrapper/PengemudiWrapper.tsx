@@ -56,7 +56,7 @@ const PengemudiWrapper = () => {
       {contextHolder}
 
       <DashboardLayout
-        pageTitle="Manajemen Pengemudi Terdaftar (Note Belum bisa dilepas mandatory nomor pegawai)"
+        pageTitle="Manajemen Pengemudi Terdaftar"
         pageSubtitle="Manajemen Pengemudi transportasi umum di Bandung"
         showExport={true}
         onExport={handleExport}
