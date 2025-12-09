@@ -259,10 +259,10 @@ const UserForm: React.FC = () => {
             <div>
               <p>Pengguna berhasil ditambahkan!</p>
               <p>
-                <strong>Password default:</strong> BemoBandung25$
+                <strong>Password default:</strong> YTREWQ
               </p>
               <p style={{ fontSize: '12px', color: '#666' }}>
-                (User akan diminta mengganti password saat login pertama kali)
+                (pengguna bisa mengganti password di profile)
               </p>
             </div>
           ),
@@ -502,7 +502,7 @@ const UserForm: React.FC = () => {
                   ]}
                 >
                   <Input
-                    placeholder="contoh@email.com"
+                    placeholder="masukan email aktif anda"
                     size="large"
                     disabled={isLoading || isEditMode}
                     allowClear
@@ -522,7 +522,7 @@ const UserForm: React.FC = () => {
                   name="nomorTelepon"
                   rules={[
                     { required: true, message: "Nomor telepon wajib diisi" },
-                    { validator: validatePhoneNumber }
+                    // { validator: validatePhoneNumber }
                   ]}
                 >
                   <Input
@@ -543,7 +543,7 @@ const UserForm: React.FC = () => {
                   }
                   name="tanggalLahir"
                   rules={[
-                    { validator: validateBirthDate }
+                    { required: true, message: "Nomor telepon wajib diisi" }
                   ]}
                 >
                   <DatePicker
