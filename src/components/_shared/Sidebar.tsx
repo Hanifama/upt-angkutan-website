@@ -31,6 +31,12 @@ const Sidebar: React.FC = () => {
       roles: ["admin-upt", "koperasi"], // bisa diakses oleh kedua role
     },
     {
+      key: "/dashboard/management-user",
+      icon: <UserOutlined style={{ fontSize: "20px" }} />,
+      label: "Management User",
+      roles: ["admin-upt"], // hanya admin UPT
+    },
+    {
       key: "/dashboard/survey-lapangan",
       icon: <BarChartOutlined style={{ fontSize: "20px" }} />,
       label: "Survey Lapangan",

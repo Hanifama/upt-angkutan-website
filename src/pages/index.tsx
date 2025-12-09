@@ -24,6 +24,8 @@ import SurveyDinamisForm from "./module/surrveyLapangan/Form/SurveyDinamisForm";
 import SurveyStatisForm from "./module/surrveyLapangan/Form/SurveyStatisForm";
 import HalteWrapper from "./wrapper/HalteWrapper";
 import HalteForm from "./module/halte/Form";
+import UserManagementWrapper from "./wrapper/ManagementUserWrapper";
+import CreateUserForm from "./module/managementUser/form";
 
 export const errorPage = {
   notFound: <Dashboard404 />,
@@ -37,6 +39,7 @@ export const authPages = {
 export const modulePages = {
   dashboardPublic: <DashboardPublicWrapper />,
   dashboard: <DashboardWrapper />,
+  userManagement: <UserManagementWrapper />,
   surveyLapangan: <SurveyLapanganWrapper />,
   rute: <RuteWrapper />,
   halte: <HalteWrapper />,
@@ -50,6 +53,7 @@ export const modulePages = {
 export const formModule = {
   createSurveyDinamis: <SurveyDinamisForm />,
   createSurveyStatis: <SurveyStatisForm />,
+  createUser: <CreateUserForm />,
   createRute: <RuteForm />,
   createHalte: <HalteForm />,
   createArmada: <ArmadaForm />,
