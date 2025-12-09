@@ -41,6 +41,7 @@ const HalteForm: React.FC = () => {
   const navigate = useNavigate();
   const [messageApi, contextHolder] = message.useMessage();
 
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [selectedLayanan, setSelectedLayanan] = useState<string[]>([]);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -87,13 +88,13 @@ const HalteForm: React.FC = () => {
     if (selectedHalte && isEditMode) {
       // Reset form terlebih dahulu
       form.resetFields();
-      
+
       // Set nilai form
       form.setFieldsValue({
         nama: selectedHalte.nama,
         deskripsi: selectedHalte.deskripsi,
-        latitude: String(selectedHalte.latitude),
-        longitude: String(selectedHalte.longitude),
+        latitude: String(selectedHalte.location.latitude),
+        longitude: String(selectedHalte.location.longitude),
         status: selectedHalte.status,
       });
 
@@ -243,6 +244,55 @@ const HalteForm: React.FC = () => {
     );
   }
 
+  // Fungsi untuk mendapatkan lokasi GPS
+  const handleGetLocation = () => {
+    setIsGettingLocation(true);
+
+    if (!navigator.geolocation) {
+      messageApi.error("Browser Anda tidak mendukung Geolocation!");
+      setIsGettingLocation(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        // Set nilai latitude dan longitude ke form
+        form.setFieldsValue({
+          latitude: latitude.toFixed(6),
+          longitude: longitude.toFixed(6),
+        });
+
+        setIsGettingLocation(false);
+        messageApi.success("Lokasi berhasil diambil dari GPS!");
+      },
+      (error) => {
+        let errorMessage = "Gagal mengambil lokasi: ";
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += "Izin lokasi ditolak";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += "Informasi lokasi tidak tersedia";
+            break;
+          case error.TIMEOUT:
+            errorMessage += "Permintaan lokasi timeout";
+            break;
+          default:
+            errorMessage += "Error tidak diketahui";
+        }
+        messageApi.error(errorMessage);
+        setIsGettingLocation(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
+  };
+
   return (
     <DashboardLayout
       pageTitle={isEditMode ? "Edit Data Halte" : "Tambah Data Halte"}
@@ -315,7 +365,7 @@ const HalteForm: React.FC = () => {
           </h3>
 
           <Row gutter={16}>
-            <Col span={12}>
+            <Col span={8}>
               <Form.Item
                 label="Latitude"
                 name="latitude"
@@ -331,7 +381,7 @@ const HalteForm: React.FC = () => {
               </Form.Item>
             </Col>
 
-            <Col span={12}>
+            <Col span={8}>
               <Form.Item
                 label="Longitude"
                 name="longitude"
@@ -345,6 +395,25 @@ const HalteForm: React.FC = () => {
               >
                 <Input placeholder="107.6070151" disabled={isLoading} />
               </Form.Item>
+            </Col>
+            <Col span={8}>
+              <Form.Item label=" ">
+                <Button
+                  type="default"
+                  onClick={handleGetLocation}
+                  loading={isGettingLocation}
+                  block
+                  icon={isGettingLocation ? <Spin size="small" /> : null}
+                  style={{
+                    backgroundColor: isGettingLocation ? '#f0f0f0' : '#1890ff',
+                    color: isGettingLocation ? '#666' : 'white',
+                    borderColor: '#1890ff'
+                  }}
+                >
+                  {isGettingLocation ? "Mendapatkan Lokasi..." : "Ambil Lokasi Saat Ini dari GPS"}
+                </Button>
+              </Form.Item>
+
             </Col>
           </Row>
 
@@ -407,30 +476,30 @@ const HalteForm: React.FC = () => {
           </Form.Item>
 
           {/* =================== BUTTON =================== */}
-          <Form.Item style={{ marginTop: 24 }}>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Button
-                  block
-                  onClick={() => navigate("/dashboard/halte")}
-                  disabled={isLoading}
-                  style={{ borderColor: "#FF4D4F", color: "#FF4D4F" }}
-                >
-                  Batal
-                </Button>
-              </Col>
-              <Col span={12}>
-                <Button
-                  block
-                  type="primary"
-                  htmlType="submit"
-                  loading={isLoading}
-                  style={{ backgroundColor: "#2E3192", borderColor: "#2E3192" }}
-                >
-                  {isEditMode ? "Perbarui" : "Simpan"}
-                </Button>
-              </Col>
-            </Row>
+          <Form.Item style={{ marginTop: 24, textAlign: "right" }}>
+            <Button
+              onClick={() => navigate("/dashboard/halte")}
+              disabled={isLoading}
+              style={{
+                borderColor: "#FF4D4F",
+                color: "#FF4D4F",
+                marginRight: 8
+              }}
+            >
+              Batal
+            </Button>
+
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={isLoading}
+              style={{
+                backgroundColor: "#2E3192",
+                borderColor: "#2E3192"
+              }}
+            >
+              {isEditMode ? "Perbarui" : "Simpan"}
+            </Button>
           </Form.Item>
         </Form>
       </Card>
