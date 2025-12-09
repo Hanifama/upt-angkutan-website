@@ -142,6 +142,24 @@ export const router = createHashRouter([
         ),
       },
       {
+        path: "halte/tambah",
+        element: (
+          <ProtectedRoute
+            element={formModule.createHalte}
+            allowedRoles={["admin-upt"]}
+          />
+        ),
+      },
+      {
+        path: "halte/edit/:halteId",
+        element: (
+          <ProtectedRoute
+            element={formModule.createHalte}
+            allowedRoles={["admin-upt"]}
+          />
+        ),
+      },
+      {
         path: "armada",
         element: (
           <ProtectedRoute

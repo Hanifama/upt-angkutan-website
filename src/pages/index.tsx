@@ -23,6 +23,7 @@ import UpdatePasswordForm from "./module/profile/Form/UpdatePasswordForm";
 import SurveyDinamisForm from "./module/surrveyLapangan/Form/SurveyDinamisForm";
 import SurveyStatisForm from "./module/surrveyLapangan/Form/SurveyStatisForm";
 import HalteWrapper from "./wrapper/HalteWrapper";
+import HalteForm from "./module/halte/Form";
 
 export const errorPage = {
   notFound: <Dashboard404 />,
@@ -50,6 +51,7 @@ export const formModule = {
   createSurveyDinamis: <SurveyDinamisForm />,
   createSurveyStatis: <SurveyStatisForm />,
   createRute: <RuteForm />,
+  createHalte: <HalteForm />,
   createArmada: <ArmadaForm />,
   createPengemudi: <PengemudiForm />,
   LinkInformasiForm: <LinkInformasiForm />,

@@ -1,22 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { Card, Select, Table, Button, Input, Tag, message } from "antd";
+import { 
+  Card, 
+  Select, 
+  Table, 
+  Button, 
+  Input, 
+  Tag, 
+  message, 
+  Space,
+  Popconfirm 
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { CloseCircleOutlined } from "@ant-design/icons";
+import { 
+  CloseCircleOutlined, 
+  EditOutlined, 
+  DeleteOutlined,
+  EyeOutlined 
+} from "@ant-design/icons";
 import { useHalteStore } from "../../../store/useHalteStore";
 import { useLayananStore } from "../../../store/useLayananStore";
 import type { Halte } from "../../../interfaces/halte";
-import CustomModal from "../../../components/_shared/CustomModal";
 import { useRouteStore } from "../../../store/useRoutesStore";
+import { useNavigate } from "react-router-dom";
 
 const { Option } = Select;
 
 const HaltePage: React.FC = () => {
-  const { halte, meta, isLoading, fetchHalteList } = useHalteStore();
+  const navigate = useNavigate();
+  const { 
+    halte, 
+    meta, 
+    isLoading, 
+    fetchHalteList,
+    deleteHalte 
+  } = useHalteStore();
   const { layanan, fetchLayanan } = useLayananStore();
   const { routes, fetchRoutes } = useRouteStore();
 
   // Filters
-  const [selectedLayanan, setSelectedLayanan] = useState<string>(""); // single ID
+  const [selectedLayanan, setSelectedLayanan] = useState<string>("");
   const [selectedRute, setSelectedRute] = useState<string[]>([]);
   const [search, setSearch] = useState("");
 
@@ -24,8 +46,9 @@ const HaltePage: React.FC = () => {
   const [pageSize, setPageSize] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Modal Delete
-  const [modalVisible, setModalVisible] = useState(false);
+  // Loading untuk delete
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
   const [messageApi, contextHolder] = message.useMessage();
 
   const fetchData = () => {
@@ -43,7 +66,7 @@ const HaltePage: React.FC = () => {
     fetchLayanan();
   }, []);
 
-  // Fetch rute berdasarkan 1 layananId
+  // Fetch rute berdasarkan layananId
   useEffect(() => {
     if (selectedLayanan) {
       fetchRoutes({ layananId: selectedLayanan });
@@ -55,12 +78,39 @@ const HaltePage: React.FC = () => {
     fetchData();
   }, [selectedLayanan, selectedRute, search, currentPage, pageSize]);
 
-  const handleDelete = async () => {
-    messageApi.info("Delete API belum dibuat");
-    setModalVisible(false);
+  // Handle Delete Halte
+  const handleDelete = async (id: string) => {
+    try {
+      setDeletingId(id);
+      await deleteHalte(id);
+      messageApi.success("Halte berhasil dihapus");
+      // Jika setelah delete data habis di halaman ini, kembali ke halaman sebelumnya
+      if (halte.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      }
+    } catch (error: any) {
+      messageApi.error(error.message || "Gagal menghapus halte");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // Handle Edit Halte
+  const handleEdit = (id: string) => {
+    navigate(`/dashboard/halte/edit/${id}`);
+  };
+
+  // Handle View Detail
+  const handleView = (id: string) => {
+    navigate(`/dashboard/halte/detail/${id}`);
   };
 
   const columns: ColumnsType<Halte> = [
+    {
+      title: "No",
+      width: 60,
+      render: (_, __, index) => (currentPage - 1) * pageSize + index + 1,
+    },
     {
       title: "Nama Halte",
       dataIndex: "nama",
@@ -107,6 +157,47 @@ const HaltePage: React.FC = () => {
         </span>
       ),
     },
+    {
+      title: "Aksi",
+      width: 150,
+      fixed: 'right',
+      render: (_, record) => (
+        <Space size="small">
+          {/* <Button
+            type="text"
+            size="small"
+            icon={<EyeOutlined />}
+            onClick={() => handleView(record.id)}
+            title="Lihat Detail"
+          /> */}
+          <Button
+            type="text"
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => handleEdit(record.id)}
+            title="Edit"
+            style={{ color: '#1890ff' }}
+          />
+          <Popconfirm
+            title="Hapus Halte"
+            description="Apakah Anda yakin ingin menghapus halte ini?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Ya"
+            cancelText="Tidak"
+            okButtonProps={{ danger: true, loading: deletingId === record.id }}
+          >
+            <Button
+              type="text"
+              size="small"
+              icon={<DeleteOutlined />}
+              loading={deletingId === record.id}
+              danger
+              title="Hapus"
+            />
+          </Popconfirm>
+        </Space>
+      ),
+    },
   ];
 
   return (
@@ -121,10 +212,15 @@ const HaltePage: React.FC = () => {
             value={selectedLayanan || undefined}
             onChange={(val) => {
               setSelectedLayanan(val);
-              setSelectedRute([]); // reset rute
+              setSelectedRute([]);
               setCurrentPage(1);
             }}
             virtual={false}
+            allowClear
+            onClear={() => {
+              setSelectedLayanan("");
+              setSelectedRute([]);
+            }}
           >
             {layanan.map((l) => (
               <Option key={l.id} value={l.id}>
@@ -133,17 +229,18 @@ const HaltePage: React.FC = () => {
             ))}
           </Select>
 
-          {/* FILTER RUTE (disable jika belum pilih layanan) */}
+          {/* FILTER RUTE */}
           <Select
             mode="multiple"
             placeholder="Filter Rute"
             value={selectedRute}
-            disabled={!selectedLayanan} // disable
+            disabled={!selectedLayanan}
             onChange={(val) => {
               setSelectedRute(val);
               setCurrentPage(1);
             }}
             virtual={false}
+            allowClear
           >
             {routes.map((r) => (
               <Option key={r.routeId} value={r.routeId}>
@@ -158,6 +255,12 @@ const HaltePage: React.FC = () => {
             onSearch={(val) => {
               setSearch(val);
               setCurrentPage(1);
+            }}
+            onChange={(e) => {
+              if (!e.target.value) {
+                setSearch("");
+                setCurrentPage(1);
+              }
             }}
           />
         </div>
@@ -198,7 +301,7 @@ const HaltePage: React.FC = () => {
           pagination={false}
           rowKey="id"
           loading={isLoading}
-          scroll={{ x: "max-content" }}
+          scroll={{ x: 'max-content' }}
           locale={{ emptyText: "Data halte tidak ditemukan" }}
         />
 
@@ -246,14 +349,6 @@ const HaltePage: React.FC = () => {
           />
         </div>
       </Card>
-
-      <CustomModal
-        visible={modalVisible}
-        title="Konfirmasi Hapus"
-        content="Yakin ingin menghapus halte ini?"
-        onOk={handleDelete}
-        onCancel={() => setModalVisible(false)}
-      />
     </div>
   );
 };
