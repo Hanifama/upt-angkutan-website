@@ -7,7 +7,6 @@ import {
     Tag,
     message,
     Space,
-    Avatar,
     Badge,
     Select,
     Row,
@@ -18,11 +17,9 @@ import {
     SearchOutlined,
     EditOutlined,
     DeleteOutlined,
-    UserOutlined,
     PhoneOutlined,
     CalendarOutlined,
     RestOutlined,
-    ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
@@ -66,7 +63,6 @@ const UserManagementPage: React.FC = () => {
     // Modal state
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-    const [selectedUserName, setSelectedUserName] = useState<string>("");
     const [actionType, setActionType] = useState<"delete" | "restore">("delete");
 
     // Load users on component mount and filter changes
@@ -102,16 +98,14 @@ const UserManagementPage: React.FC = () => {
         }
     };
 
-    const showDeleteModal = (userId: string, userName: string) => {
+    const showDeleteModal = (userId: string) => {
         setSelectedUserId(userId);
-        setSelectedUserName(userName);
         setActionType("delete");
         setModalVisible(true);
     };
 
-    const showRestoreModal = (userId: string, userName: string) => {
+    const showRestoreModal = (userId: string) => {
         setSelectedUserId(userId);
-        setSelectedUserName(userName);
         setActionType("restore");
         setModalVisible(true);
     };
@@ -136,36 +130,11 @@ const UserManagementPage: React.FC = () => {
             setDeletingId(null);
             setModalVisible(false);
             setSelectedUserId(null);
-            setSelectedUserName("");
         }
     };
 
     const handleEdit = (user: any) => {
         navigate(`/dashboard/management-user/edit/${user.userId}`);
-    };
-
-    const handleViewDetail = (user: any) => {
-        navigate(`/dashboard/users/detail/${user.userId}`);
-    };
-
-    // Modal configuration
-    const modalConfig = {
-        delete: {
-            title: "Konfirmasi Hapus Pengguna",
-            content: `Apakah Anda yakin ingin menghapus pengguna ${selectedUserName}?`,
-            okText: "Hapus",
-            cancelText: "Batal",
-            okButtonProps: { danger: true },
-            icon: <ExclamationCircleOutlined style={{ color: "#ff4d4f" }} />,
-        },
-        restore: {
-            title: "Konfirmasi Kembalikan Pengguna",
-            content: `Apakah Anda yakin ingin mengembalikan pengguna ${selectedUserName}?`,
-            okText: "Kembalikan",
-            cancelText: "Batal",
-            okButtonProps: { type: "primary" },
-            icon: <ExclamationCircleOutlined style={{ color: "#52c41a" }} />,
-        },
     };
 
     // Columns definition
@@ -255,7 +224,7 @@ const UserManagementPage: React.FC = () => {
                             type="text"
                             size="small"
                             icon={<RestOutlined />}
-                            onClick={() => showRestoreModal(record.userId, record.namaLengkap)}
+                            onClick={() => showRestoreModal(record.userId)}
                             title="Kembalikan"
                             style={{ color: "#52c41a" }}
                         />
@@ -264,7 +233,7 @@ const UserManagementPage: React.FC = () => {
                             type="text"
                             size="small"
                             icon={<DeleteOutlined />}
-                            onClick={() => showDeleteModal(record.userId, record.namaLengkap)}
+                            onClick={() => showDeleteModal(record.userId)}
                             loading={deletingId === record.userId}
                             danger
                             title="Hapus"

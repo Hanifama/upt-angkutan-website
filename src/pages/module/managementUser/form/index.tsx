@@ -7,36 +7,23 @@ import {
   Row,
   Col,
   Select,
-  Switch,
   message,
-  Upload,
   DatePicker,
-  Space,
-  Avatar,
   Typography,
   Alert,
   Tag,
   Divider,
   Badge,
-  Modal,
   Spin,
 } from "antd";
 import {
-  UploadOutlined,
   UserOutlined,
   InfoCircleOutlined,
-  ArrowLeftOutlined,
   LockOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  CalendarOutlined,
-  HomeOutlined,
   EyeOutlined,
   EyeInvisibleOutlined
 } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
-import type { RcFile, UploadFile } from "antd/es/upload/interface";
-import type { UploadProps } from "antd";
 import { useUploadStore } from "../../../../store/useUploadStore";
 import DashboardLayout from "../../../../layouts/DashboardLayout";
 import { useUserStore } from "../../../../store/useUserStore";
@@ -44,7 +31,6 @@ import dayjs from "dayjs";
 
 const { Option } = Select;
 const { TextArea } = Input;
-const { Text } = Typography;
 
 // Role options sesuai API [driver, penumpang, upt, admin-upt, koperasi]
 const roleOptions = [
@@ -61,14 +47,6 @@ const UserForm: React.FC = () => {
   // State management
   const [loading, setLoading] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [avatarLoading, setAvatarLoading] = useState(false);
-
-  // Avatar state
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [previewTitle, setPreviewTitle] = useState("");
-
   // Stores
   const {
     selectedUser,
@@ -79,8 +57,6 @@ const UserForm: React.FC = () => {
   } = useUserStore();
 
   const {
-    uploadFile,
-    uploadedFile,
     isLoading: isUploading,
     resetUpload
   } = useUploadStore();
@@ -120,98 +96,8 @@ const UserForm: React.FC = () => {
         alamat: selectedUser.alamat,
       });
 
-      // Set avatar jika ada
-      if (selectedUser.avatar) {
-        setPreviewImage(selectedUser.avatar);
-        setFileList([
-          {
-            uid: "-1",
-            name: "avatar-user",
-            status: "done",
-            url: selectedUser.avatar,
-          },
-        ]);
-      } else {
-        setFileList([]);
-        setPreviewImage("");
-      }
     }
   }, [selectedUser, isEditMode, form]);
-
-  // Monitor perubahan pada uploadedFile untuk update preview
-  useEffect(() => {
-    if (uploadedFile?.withUrl) {
-      // Jika uploadedFile berubah dan ada withUrl, update preview
-      setPreviewImage(uploadedFile.withUrl);
-      setFileList([
-        {
-          uid: "-3",
-          name: uploadedFile.filename || "avatar",
-          status: "done",
-          url: uploadedFile.withUrl,
-        },
-      ]);
-    }
-  }, [uploadedFile]);
-
-  // --- Upload Handler ---
-  const handleUpload = async (file: File) => {
-    try {
-      setAvatarLoading(true);
-
-      // Upload file ke server
-      await uploadFile(file);
-
-      // Response akan tersimpan di uploadedFile melalui store
-      // useEffect di atas akan menangani update preview
-
-      messageApi.success("Avatar berhasil diunggah!", 2);
-
-    } catch (err: any) {
-      messageApi.error(err.message || "Gagal mengunggah avatar", 2);
-      throw err;
-    } finally {
-      setAvatarLoading(false);
-    }
-  };
-
-  // --- Avatar Preview ---
-  const handleCancel = () => setPreviewOpen(false);
-
-  const getBase64 = (file: RcFile): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
-
-  // --- Avatar Preview Handler ---
-  const handlePreview = async (file: UploadFile) => {
-    // Jika file sudah diupload dan memiliki URL dari response API
-    if (file.url) {
-      setPreviewImage(file.url);
-      setPreviewOpen(true);
-      setPreviewTitle(file.name || file.url?.split('/').pop() || "Avatar");
-    }
-    // Jika masih file lokal sebelum upload
-    else if (file.originFileObj) {
-      try {
-        const preview = await getBase64(file.originFileObj as RcFile);
-        setPreviewImage(preview);
-        setPreviewOpen(true);
-        setPreviewTitle(file.name || "Avatar");
-      } catch (error) {
-        messageApi.error("Gagal menampilkan preview");
-      }
-    }
-  };
-
-  const handleChange: UploadProps["onChange"] = ({ fileList: newList }) => {
-    setFileList(newList);
-  };
-
-  const normFile = (e: any) => (Array.isArray(e) ? e : e?.fileList);
 
   // --- Submit Handler ---
   const handleSubmit = async (values: any) => {
@@ -230,15 +116,6 @@ const UserForm: React.FC = () => {
       // Tambahkan tanggal lahir jika ada
       if (values.tanggalLahir) {
         payload.tanggalLahir = values.tanggalLahir.format("YYYY-MM-DD");
-      }
-
-      // Prioritas 1: URL dari uploadedFile terbaru
-      if (uploadedFile?.withUrl) {
-        payload.avatar = uploadedFile.withUrl;
-      }
-      // Prioritas 2: URL dari previewImage (bisa dari edit mode atau upload sebelumnya)
-      else if (previewImage && previewImage.startsWith('http')) {
-        payload.avatar = previewImage;
       }
 
       // --- TAMBAHAN: Password untuk create dan edit mode ---
@@ -313,31 +190,6 @@ const UserForm: React.FC = () => {
       return Promise.resolve();
     }
     return Promise.reject(new Error('Format nomor telepon tidak valid!'));
-  };
-
-  // Validasi tanggal lahir
-  const validateBirthDate = (_: any, value: dayjs.Dayjs) => {
-    if (!value) {
-      return Promise.resolve();
-    }
-
-    const today = dayjs();
-    const minDate = dayjs().subtract(120, 'year'); // Maks 120 tahun
-    const maxDate = dayjs().subtract(17, 'year'); // Minimal 17 tahun
-
-    if (value.isAfter(today)) {
-      return Promise.reject(new Error('Tanggal lahir tidak boleh di masa depan!'));
-    }
-
-    if (value.isBefore(minDate)) {
-      return Promise.reject(new Error('Tanggal lahir terlalu tua!'));
-    }
-
-    if (value.isAfter(maxDate)) {
-      return Promise.reject(new Error('Minimal usia 17 tahun!'));
-    }
-
-    return Promise.resolve();
   };
 
   // Validasi password (untuk create mode - wajib, untuk edit mode - opsional)
@@ -438,79 +290,6 @@ const UserForm: React.FC = () => {
               <UserOutlined />
               Informasi Pribadi
             </h3>
-
-            {/* Avatar Upload Section */}
-            {/* {isEditMode && (
-              <div className="flex flex-col items-center mb-6">
-                <div className="mb-4">
-                  <Avatar
-                    size={100}
-                    src={previewImage}
-                    icon={!previewImage && <UserOutlined />}
-                    style={{
-                      backgroundColor: previewImage ? 'transparent' : '#1890ff',
-                      border: '3px solid #f0f0f0',
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                      cursor: previewImage ? 'pointer' : 'default'
-                    }}
-                    onClick={previewImage ? () => {
-                      setPreviewOpen(true);
-                      setPreviewTitle("Foto Profil");
-                    } : undefined}
-                  />
-                </div>
-
-                <Form.Item
-                  name="avatar"
-                  valuePropName="fileList"
-                  getValueFromEvent={normFile}
-                  className="text-center"
-                >
-                  <div className="flex gap-2">
-                    <Upload
-                      beforeUpload={(file) => {
-                        handleUpload(file);
-                        return false;
-                      }}
-                      showUploadList={false}
-                      accept=".jpg,.jpeg,.png,.webp"
-                      maxCount={1}
-                      disabled={isLoading || avatarLoading}
-                    >
-                      <Button
-                        icon={avatarLoading ? <Spin size="small" /> : <UploadOutlined />}
-                        loading={avatarLoading}
-                        size="middle"
-                      >
-                        {previewImage ? 'Ganti Foto Profil' : 'Upload Foto Profil'}
-                      </Button>
-                    </Upload>
-                    {previewImage && (
-                      <Button
-                        danger
-                        onClick={() => {
-                          setPreviewImage("");
-                          setFileList([]);
-                          resetUpload();
-                        }}
-                        type="text"
-                        disabled={isLoading}
-                      >
-                        Hapus
-                      </Button>
-                    )}
-                  </div>
-                </Form.Item>
-                <Text type="secondary" style={{ fontSize: 12, marginTop: 8 }}>
-                  Ukuran maksimal 2MB. Format: JPG, PNG, WEBP
-                  {previewImage && (
-                    <span style={{ color: '#52c41a', marginLeft: 8 }}>
-                      ✓ Avatar siap diunggah
-                    </span>
-                  )}
-                </Text>
-              </div>
-            )} */}
 
             <Row gutter={[24, 16]}>
               <Col xs={24} md={12}>
@@ -766,7 +545,6 @@ const UserForm: React.FC = () => {
                 htmlType="submit"
                 loading={loading}
                 size="large"
-                disabled={avatarLoading}
                 style={{
                   backgroundColor: "#2E3192",
                   borderColor: "#2E3192",
@@ -780,20 +558,6 @@ const UserForm: React.FC = () => {
         </Form>
       </Card>
 
-      {/* Avatar Preview Modal */}
-      <Modal
-        open={previewOpen}
-        title={previewTitle}
-        footer={null}
-        onCancel={handleCancel}
-        centered
-      >
-        <img
-          alt="preview"
-          style={{ width: "100%", borderRadius: '8px' }}
-          src={previewImage}
-        />
-      </Modal>
     </DashboardLayout>
   );
 };
