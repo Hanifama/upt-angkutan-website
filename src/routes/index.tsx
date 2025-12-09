@@ -97,6 +97,15 @@ export const router = createHashRouter([
         ),
       },
       {
+        path: "management-user/edit/:userId",
+        element: (
+          <ProtectedRoute
+            element={formModule.createUser}
+            allowedRoles={["admin-upt"]}
+          />
+        ),
+      },
+      {
         path: "survey-lapangan",
         element: (
           <ProtectedRoute
