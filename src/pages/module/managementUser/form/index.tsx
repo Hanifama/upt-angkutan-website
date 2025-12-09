@@ -9,7 +9,6 @@ import {
   Select,
   message,
   DatePicker,
-  Typography,
   Alert,
   Tag,
   Divider,
@@ -21,7 +20,7 @@ import {
   InfoCircleOutlined,
   LockOutlined,
   EyeOutlined,
-  EyeInvisibleOutlined
+  EyeInvisibleOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useParams } from "react-router-dom";
 import { useUploadStore } from "../../../../store/useUploadStore";
@@ -56,10 +55,7 @@ const UserForm: React.FC = () => {
     fetchUserById,
   } = useUserStore();
 
-  const {
-    isLoading: isUploading,
-    resetUpload
-  } = useUploadStore();
+  const { isLoading: isUploading, resetUpload } = useUploadStore();
 
   const isLoading = isUserStoreLoading || isUploading || loading;
 
@@ -91,11 +87,12 @@ const UserForm: React.FC = () => {
         namaLengkap: selectedUser.namaLengkap,
         email: selectedUser.email,
         nomorTelepon: selectedUser.nomorTelepon,
-        tanggalLahir: selectedUser.tanggalLahir ? dayjs(selectedUser.tanggalLahir) : null,
+        tanggalLahir: selectedUser.tanggalLahir
+          ? dayjs(selectedUser.tanggalLahir)
+          : null,
         role: selectedUser.role,
         alamat: selectedUser.alamat,
       });
-
     }
   }, [selectedUser, isEditMode, form]);
 
@@ -119,7 +116,7 @@ const UserForm: React.FC = () => {
       }
 
       // --- TAMBAHAN: Password untuk create dan edit mode ---
-      if (values.password && values.password.trim() !== '') {
+      if (values.password && values.password.trim() !== "") {
         // Kirim password jika diisi
         payload.password = values.password;
       }
@@ -128,9 +125,9 @@ const UserForm: React.FC = () => {
         // Update existing user menggunakan endpoint /user/:userId
         await updateUser(userId, payload);
         messageApi.success("Pengguna berhasil diperbarui!");
-        
+
         // Jika password diubah, beri pesan khusus
-        if (values.password && values.password.trim() !== '') {
+        if (values.password && values.password.trim() !== "") {
           messageApi.info("Password berhasil diubah!", 3);
         }
       } else {
@@ -138,7 +135,7 @@ const UserForm: React.FC = () => {
         await createUser(payload);
 
         // Tampilkan informasi password
-        if (values.password && values.password.trim() !== '') {
+        if (values.password && values.password.trim() !== "") {
           messageApi.success({
             content: (
               <div>
@@ -146,7 +143,7 @@ const UserForm: React.FC = () => {
                 <p>
                   <strong>Password yang diatur:</strong> {values.password}
                 </p>
-                <p style={{ fontSize: '12px', color: '#666' }}>
+                <p style={{ fontSize: "12px", color: "#666" }}>
                   (pengguna bisa mengganti password di profile)
                 </p>
               </div>
@@ -161,7 +158,7 @@ const UserForm: React.FC = () => {
                 <p>
                   <strong>Password default:</strong> YTREWQ
                 </p>
-                <p style={{ fontSize: '12px', color: '#666' }}>
+                <p style={{ fontSize: "12px", color: "#666" }}>
                   (pengguna bisa mengganti password di profile)
                 </p>
               </div>
@@ -175,7 +172,6 @@ const UserForm: React.FC = () => {
       setTimeout(() => {
         navigate("/dashboard/management-user");
       }, 2000);
-
     } catch (error: any) {
       messageApi.error(error.message || "Terjadi kesalahan!");
     } finally {
@@ -189,23 +185,25 @@ const UserForm: React.FC = () => {
     if (!value || phoneRegex.test(value)) {
       return Promise.resolve();
     }
-    return Promise.reject(new Error('Format nomor telepon tidak valid!'));
+    return Promise.reject(new Error("Format nomor telepon tidak valid!"));
   };
 
   // Validasi password (untuk create mode - wajib, untuk edit mode - opsional)
   const validatePassword = (_: any, value: string) => {
     if (isEditMode) {
       // Untuk edit mode: opsional
-      if (!value || value === '' || value.length >= 6) {
+      if (!value || value === "" || value.length >= 6) {
         return Promise.resolve();
       }
     } else {
       // Untuk create mode: wajib
-      if (!value || value === '') {
-        return Promise.reject(new Error('Password wajib diisi untuk pengguna baru'));
+      if (!value || value === "") {
+        return Promise.reject(
+          new Error("Password wajib diisi untuk pengguna baru")
+        );
       }
       if (value.length < 6) {
-        return Promise.reject(new Error('Password minimal 6 karakter'));
+        return Promise.reject(new Error("Password minimal 6 karakter"));
       }
     }
     return Promise.resolve();
@@ -214,11 +212,11 @@ const UserForm: React.FC = () => {
   // Validasi konfirmasi password
   const validateConfirmPassword = ({ getFieldValue }: any) => ({
     validator(_: any, value: string) {
-      const password = getFieldValue('password');
-      
+      const password = getFieldValue("password");
+
       if (isEditMode) {
         // Untuk edit mode: validasi hanya jika password diisi
-        if (!password || password === '') {
+        if (!password || password === "") {
           return Promise.resolve();
         }
       } else {
@@ -227,11 +225,11 @@ const UserForm: React.FC = () => {
           return Promise.resolve();
         }
       }
-      
+
       if (!value || value === password) {
         return Promise.resolve();
       }
-      return Promise.reject(new Error('Password tidak cocok'));
+      return Promise.reject(new Error("Password tidak cocok"));
     },
   });
 
@@ -242,7 +240,14 @@ const UserForm: React.FC = () => {
         pageTitle="Edit Pengguna"
         pageSubtitle="Memuat data pengguna..."
       >
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "400px",
+          }}
+        >
           <Spin size="large" tip="Memuat data pengguna..." />
         </div>
       </DashboardLayout>
@@ -264,8 +269,8 @@ const UserForm: React.FC = () => {
         title={
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span style={{ fontWeight: 600, fontSize: '16px' }}>
-                {isEditMode ? 'Edit Pengguna' : 'Tambah Pengguna Baru'}
+              <span style={{ fontWeight: 600, fontSize: "16px" }}>
+                {isEditMode ? "Edit Pengguna" : "Tambah Pengguna Baru"}
               </span>
             </div>
             {isEditMode && selectedUser && (
@@ -294,16 +299,12 @@ const UserForm: React.FC = () => {
             <Row gutter={[24, 16]}>
               <Col xs={24} md={12}>
                 <Form.Item
-                  label={
-                    <span className="font-medium">
-                      Nama Lengkap
-                    </span>
-                  }
+                  label={<span className="font-medium">Nama Lengkap</span>}
                   name="namaLengkap"
                   rules={[
                     { required: true, message: "Nama lengkap wajib diisi" },
                     { min: 3, message: "Nama minimal 3 karakter" },
-                    { max: 100, message: "Nama maksimal 100 karakter" }
+                    { max: 100, message: "Nama maksimal 100 karakter" },
                   ]}
                 >
                   <Input
@@ -317,11 +318,7 @@ const UserForm: React.FC = () => {
 
               <Col xs={24} md={12}>
                 <Form.Item
-                  label={
-                    <span className="font-medium">
-                      Email
-                    </span>
-                  }
+                  label={<span className="font-medium">Email</span>}
                   name="email"
                   rules={[
                     { required: true, message: "Email wajib diisi" },
@@ -341,15 +338,11 @@ const UserForm: React.FC = () => {
             <Row gutter={[24, 16]}>
               <Col xs={24} md={12}>
                 <Form.Item
-                  label={
-                    <span className="font-medium">
-                      Nomor Telepon
-                    </span>
-                  }
+                  label={<span className="font-medium">Nomor Telepon</span>}
                   name="nomorTelepon"
                   rules={[
                     { required: true, message: "Nomor telepon wajib diisi" },
-                    { validator: validatePhoneNumber }
+                    { validator: validatePhoneNumber },
                   ]}
                 >
                   <Input
@@ -363,14 +356,10 @@ const UserForm: React.FC = () => {
 
               <Col xs={24} md={12}>
                 <Form.Item
-                  label={
-                    <span className="font-medium">
-                      Tanggal Lahir
-                    </span>
-                  }
+                  label={<span className="font-medium">Tanggal Lahir</span>}
                   name="tanggalLahir"
                   rules={[
-                    { required: true, message: "Tanggal lahir wajib diisi" }
+                    { required: true, message: "Tanggal lahir wajib diisi" },
                   ]}
                 >
                   <DatePicker
@@ -379,7 +368,7 @@ const UserForm: React.FC = () => {
                     placeholder="Pilih tanggal lahir"
                     format="DD-MM-YYYY"
                     disabledDate={(current) => {
-                      return current && current > dayjs().endOf('day');
+                      return current && current > dayjs().endOf("day");
                     }}
                     disabled={isLoading}
                   />
@@ -388,16 +377,12 @@ const UserForm: React.FC = () => {
             </Row>
 
             <Form.Item
-              label={
-                <span className="font-medium">
-                  Alamat Lengkap
-                </span>
-              }
+              label={<span className="font-medium">Alamat Lengkap</span>}
               name="alamat"
               rules={[
                 { required: true, message: "Alamat wajib diisi" },
                 { min: 10, message: "Alamat minimal 10 karakter" },
-                { max: 500, message: "Alamat maksimal 500 karakter" }
+                { max: 500, message: "Alamat maksimal 500 karakter" },
               ]}
             >
               <TextArea
@@ -415,9 +400,9 @@ const UserForm: React.FC = () => {
           <div className="mb-8">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <LockOutlined />
-              Password {isEditMode ? '(Opsional)' : ''}
+              Password {isEditMode ? "(Opsional)" : ""}
             </h3>
-            
+
             {isEditMode ? (
               <Alert
                 message="Informasi"
@@ -437,39 +422,39 @@ const UserForm: React.FC = () => {
                 className="mb-4"
               />
             )}
-            
+
             <Row gutter={[24, 16]}>
               <Col xs={24} md={12}>
                 <Form.Item
                   label="Password"
                   name="password"
-                  rules={[
-                    { validator: validatePassword }
-                  ]}
+                  rules={[{ validator: validatePassword }]}
                 >
                   <Input.Password
-                    placeholder={isEditMode ? "Masukkan password baru (opsional)" : "Masukkan password"}
+                    placeholder={
+                      isEditMode
+                        ? "Masukkan password baru (opsional)"
+                        : "Masukkan password"
+                    }
                     size="large"
-                    iconRender={(visible) => 
+                    iconRender={(visible) =>
                       visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
                     }
                     disabled={isLoading}
                   />
                 </Form.Item>
               </Col>
-              
+
               <Col xs={24} md={12}>
                 <Form.Item
                   label="Konfirmasi Password"
                   name="confirmPassword"
-                  rules={[
-                    validateConfirmPassword
-                  ]}
+                  rules={[validateConfirmPassword]}
                 >
                   <Input.Password
                     placeholder="Konfirmasi password"
                     size="large"
-                    iconRender={(visible) => 
+                    iconRender={(visible) =>
                       visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
                     }
                     disabled={isLoading}
@@ -490,11 +475,7 @@ const UserForm: React.FC = () => {
             <Row gutter={[24, 16]}>
               <Col xs={24} md={12}>
                 <Form.Item
-                  label={
-                    <span className="font-medium">
-                      Role Pengguna
-                    </span>
-                  }
+                  label={<span className="font-medium">Role Pengguna</span>}
                   name="role"
                   rules={[{ required: true, message: "Role wajib dipilih" }]}
                 >
@@ -510,7 +491,9 @@ const UserForm: React.FC = () => {
                         key={option.value}
                         value={option.value}
                         label={
-                          <span style={{ color: option.color, fontWeight: 500 }}>
+                          <span
+                            style={{ color: option.color, fontWeight: 500 }}
+                          >
                             {option.label}
                           </span>
                         }
@@ -525,7 +508,6 @@ const UserForm: React.FC = () => {
                   </Select>
                 </Form.Item>
               </Col>
-              
             </Row>
           </div>
 
@@ -551,13 +533,12 @@ const UserForm: React.FC = () => {
                   minWidth: 120,
                 }}
               >
-                {isEditMode ? 'Perbarui Data' : 'Tambah Pengguna'}
+                {isEditMode ? "Perbarui Data" : "Tambah Pengguna"}
               </Button>
             </div>
           </Form.Item>
         </Form>
       </Card>
-
     </DashboardLayout>
   );
 };
