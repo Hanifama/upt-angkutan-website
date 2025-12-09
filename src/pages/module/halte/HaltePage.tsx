@@ -8,20 +8,19 @@ import {
   Tag, 
   message, 
   Space,
-  Popconfirm 
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { 
   CloseCircleOutlined, 
   EditOutlined, 
   DeleteOutlined,
-  EyeOutlined 
 } from "@ant-design/icons";
 import { useHalteStore } from "../../../store/useHalteStore";
 import { useLayananStore } from "../../../store/useLayananStore";
 import type { Halte } from "../../../interfaces/halte";
 import { useRouteStore } from "../../../store/useRoutesStore";
 import { useNavigate } from "react-router-dom";
+import CustomModal from "../../../components/_shared/CustomModal";
 
 const { Option } = Select;
 
@@ -46,8 +45,10 @@ const HaltePage: React.FC = () => {
   const [pageSize, setPageSize] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Loading untuk delete
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  // Modal state
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedHalteId, setSelectedHalteId] = useState<string | null>(null);
+  const [selectedHalteName, setSelectedHalteName] = useState<string>("");
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -81,7 +82,6 @@ const HaltePage: React.FC = () => {
   // Handle Delete Halte
   const handleDelete = async (id: string) => {
     try {
-      setDeletingId(id);
       await deleteHalte(id);
       messageApi.success("Halte berhasil dihapus");
       // Jika setelah delete data habis di halaman ini, kembali ke halaman sebelumnya
@@ -90,19 +90,30 @@ const HaltePage: React.FC = () => {
       }
     } catch (error: any) {
       messageApi.error(error.message || "Gagal menghapus halte");
-    } finally {
-      setDeletingId(null);
     }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedHalteId) return;
+    try {
+      await handleDelete(selectedHalteId);
+      setModalVisible(false);
+      setSelectedHalteId(null);
+      setSelectedHalteName("");
+    } catch (error: any) {
+      messageApi.error(error.message || "Gagal menghapus halte!");
+    }
+  };
+
+  const handleDeleteClick = (id: string, name: string) => {
+    setSelectedHalteId(id);
+    setSelectedHalteName(name);
+    setModalVisible(true);
   };
 
   // Handle Edit Halte
   const handleEdit = (id: string) => {
     navigate(`/dashboard/halte/edit/${id}`);
-  };
-
-  // Handle View Detail
-  const handleView = (id: string) => {
-    navigate(`/dashboard/halte/detail/${id}`);
   };
 
   const columns: ColumnsType<Halte> = [
@@ -159,17 +170,10 @@ const HaltePage: React.FC = () => {
     },
     {
       title: "Aksi",
-      width: 150,
+      width: 120,
       fixed: 'right',
       render: (_, record) => (
         <Space size="small">
-          {/* <Button
-            type="text"
-            size="small"
-            icon={<EyeOutlined />}
-            onClick={() => handleView(record.id)}
-            title="Lihat Detail"
-          /> */}
           <Button
             type="text"
             size="small"
@@ -178,23 +182,14 @@ const HaltePage: React.FC = () => {
             title="Edit"
             style={{ color: '#1890ff' }}
           />
-          <Popconfirm
-            title="Hapus Halte"
-            description="Apakah Anda yakin ingin menghapus halte ini?"
-            onConfirm={() => handleDelete(record.id)}
-            okText="Ya"
-            cancelText="Tidak"
-            okButtonProps={{ danger: true, loading: deletingId === record.id }}
-          >
-            <Button
-              type="text"
-              size="small"
-              icon={<DeleteOutlined />}
-              loading={deletingId === record.id}
-              danger
-              title="Hapus"
-            />
-          </Popconfirm>
+          <Button
+            type="text"
+            size="small"
+            icon={<DeleteOutlined />}
+            danger
+            onClick={() => handleDeleteClick(record.id, record.nama)}
+            title="Hapus"
+          />
         </Space>
       ),
     },
@@ -303,6 +298,19 @@ const HaltePage: React.FC = () => {
           loading={isLoading}
           scroll={{ x: 'max-content' }}
           locale={{ emptyText: "Data halte tidak ditemukan" }}
+        />
+
+        {/* Custom Modal untuk konfirmasi hapus */}
+        <CustomModal
+          visible={modalVisible}
+          title="Konfirmasi Hapus Halte"
+          content={`Apakah Anda yakin ingin menghapus halte "${selectedHalteName}"?`}
+          onOk={handleConfirmDelete}
+          onCancel={() => {
+            setModalVisible(false);
+            setSelectedHalteId(null);
+            setSelectedHalteName("");
+          }}
         />
 
         {/* Pagination */}
