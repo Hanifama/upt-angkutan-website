@@ -173,7 +173,7 @@ class HalteService {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await api.post("/halte/import-sheet", formData, {
+      const response = await api.post("/halte/import", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

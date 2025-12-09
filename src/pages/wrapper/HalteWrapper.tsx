@@ -55,7 +55,7 @@ const HalteWrapper = () => {
 
       const result = await importHalte(file);
 
-      if (result?.success) {
+      if (result?.status) {
         messageApi.success(
           result.message || "Import data halte berhasil!"
         );
